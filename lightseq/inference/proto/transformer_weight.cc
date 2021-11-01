@@ -117,6 +117,17 @@ std::string TransformerWeight<OpType_>::proto_parse_emb_wei(
   for (float ele : layer.norm_bias()) value.push_back(ele);
   idx += _hidden_size;
 
+
+  offset.push_back(idx);
+  if (layer.final_norm_scale_size() != _hidden_size) return "Wrong norm_scale_size !";
+  for (float ele : layer.final_norm_scale()) value.push_back(ele);
+  idx += _hidden_size;
+
+  offset.push_back(idx);
+  if (layer.final_norm_bias_size() != _hidden_size) return "Wrong norm_bias_size !";
+  for (float ele : layer.final_norm_bias()) value.push_back(ele);
+  idx += _hidden_size;
+
   if (source == "src") {
     std::vector<_DataType> raw_value;
     for (float e : value) raw_value.push_back(float2required(e));
@@ -581,6 +592,20 @@ void TransformerWeight<OpType_>::hdf5_parse_emb_wei(hid_t hdf5_file,
       hdf5_file, dataset_prefix + "/norm_bias", H5T_NATIVE_FLOAT,
       value.data() + idx, [=](int size) { return size != _hidden_size; },
       "Wrong norm_bias_size !");
+  idx += _hidden_size;
+
+  offset.push_back(idx);
+  read_hdf5_dataset_data(
+      hdf5_file, dataset_prefix + "/final_norm_scale", H5T_NATIVE_FLOAT,
+      value.data() + idx, [=](int size) { return size != _hidden_size; },
+      "Wrong final_norm_scale_size !");
+  idx += _hidden_size;
+
+  offset.push_back(idx);
+  read_hdf5_dataset_data(
+      hdf5_file, dataset_prefix + "/final_norm_bias", H5T_NATIVE_FLOAT,
+      value.data() + idx, [=](int size) { return size != _hidden_size; },
+      "Wrong final_norm_bias_size !");
   idx += _hidden_size;
 
   if (source == "src") {

@@ -443,6 +443,11 @@ void Decoder<OpType_>::decoder_stack() {
   ker_norm_layer_launcher<_DataType>(
       _step_token_num, _tw._hidden_size, _stream, _p_d_cur_step_query,
       _p_d_trg_emb_wei[2], _p_d_trg_emb_wei[3], _max_thread_per_block);
+
+  //final layer norm
+  ker_norm_layer_launcher<_DataType>(
+      _step_token_num, _tw._hidden_size, _stream, _p_d_cur_step_query,
+      _p_d_trg_emb_wei[8], _p_d_trg_emb_wei[9], _max_thread_per_block);
   return;
 }
 

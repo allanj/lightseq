@@ -134,6 +134,11 @@ void Encoder<OpType_>::run_one_infer(int batch_size, int batch_seq_len) {
       _batch_token_num, _tw._hidden_size, _stream, _p_d_output,
       _p_d_src_emb_wei[2], _p_d_src_emb_wei[3], _max_thread_per_block);
 
+  ker_norm_layer_launcher<_DataType>(
+      _batch_token_num, _tw._hidden_size, _stream, _p_d_output,
+      _p_d_src_emb_wei[8], _p_d_src_emb_wei[9], _max_thread_per_block);
+
+
 #ifdef DEBUG_RESULT
   for (int i = 0; i < _batch_size; i++) {       // batch_id
     for (int j = 0; j < _batch_seq_len; j++) {  // token_id
