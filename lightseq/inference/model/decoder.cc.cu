@@ -221,8 +221,8 @@ std::string Decoder<OpType_>::check() {
   if (_tw._dim_per_head & 1) {
     return "violate dim_per_head % 2 = 0";
   }
-  if (_tw._multilg_type == 0 && _p_d_trg_emb_wei.size() != 7) {
-    return "violate p_d_trg_emb_wei.size() = 7";
+  if (_tw._multilg_type == 0 && _p_d_trg_emb_wei.size() != 9) {
+    return "violate p_d_trg_emb_wei.size() = 9";
   }
   if (_tw._multilg_type != 0 && _p_d_trg_emb_wei.size() != 8) {
     return "violate p_d_trg_emb_wei.size() = 8";
@@ -447,7 +447,7 @@ void Decoder<OpType_>::decoder_stack() {
   //final layer norm
   ker_norm_layer_launcher<_DataType>(
       _step_token_num, _tw._hidden_size, _stream, _p_d_cur_step_query,
-      _p_d_trg_emb_wei[8], _p_d_trg_emb_wei[9], _max_thread_per_block);
+      _p_d_trg_emb_wei[7], _p_d_trg_emb_wei[8], _max_thread_per_block);
   return;
 }
 

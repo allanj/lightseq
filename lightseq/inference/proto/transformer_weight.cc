@@ -117,17 +117,6 @@ std::string TransformerWeight<OpType_>::proto_parse_emb_wei(
   for (float ele : layer.norm_bias()) value.push_back(ele);
   idx += _hidden_size;
 
-
-  offset.push_back(idx);
-  if (layer.final_norm_scale_size() != _hidden_size) return "Wrong norm_scale_size !";
-  for (float ele : layer.final_norm_scale()) value.push_back(ele);
-  idx += _hidden_size;
-
-  offset.push_back(idx);
-  if (layer.final_norm_bias_size() != _hidden_size) return "Wrong norm_bias_size !";
-  for (float ele : layer.final_norm_bias()) value.push_back(ele);
-  idx += _hidden_size;
-
   if (source == "src") {
     std::vector<_DataType> raw_value;
     for (float e : value) raw_value.push_back(float2required(e));
@@ -189,6 +178,16 @@ std::string TransformerWeight<OpType_>::proto_parse_emb_wei(
     std::cout << "Finish loading multi lingual weights from host to device"
               << std::endl;
   }
+
+  offset.push_back(idx);
+  if (layer.final_norm_scale_size() != _hidden_size) return "Wrong final norm_scale_size !";
+  for (float ele : layer.final_norm_scale()) value.push_back(ele);
+  idx += _hidden_size;
+
+  offset.push_back(idx);
+  if (layer.final_norm_bias_size() != _hidden_size) return "Wrong final norm_bias_size !";
+  for (float ele : layer.final_norm_bias()) value.push_back(ele);
+  idx += _hidden_size;
 
   std::cout << "Finish loading " << source << "_emb_wei from host to device"
             << std::endl;
@@ -552,7 +551,7 @@ void TransformerWeight<OpType_>::hdf5_parse_emb_wei(hid_t hdf5_file,
   std::string dataset_prefix =
       (source == "src") ? "src_embedding" : "trg_embedding";
   size_t value_size =
-      vocab_size * _hidden_size + _max_step * _hidden_size + 2 * _hidden_size;
+      vocab_size * _hidden_size + _max_step * _hidden_size + 2 * _hidden_size + 2 * _hidden_size;
   if (source != "src") {
     value_size += _hidden_size * _hidden_size * 2 * _n_dec_layer +
                   _hidden_size * 2 * _n_dec_layer + vocab_size;
@@ -572,6 +571,9 @@ void TransformerWeight<OpType_>::hdf5_parse_emb_wei(hid_t hdf5_file,
       "Wrong token_embedding_size !");
   idx += vocab_size * _hidden_size;
 
+  std::cout << "Finish loading token embedding"
+              << std::endl;
+
   offset.push_back(idx);
   read_hdf5_dataset_data(
       hdf5_file, dataset_prefix + "/position_embedding", H5T_NATIVE_FLOAT,
@@ -580,12 +582,18 @@ void TransformerWeight<OpType_>::hdf5_parse_emb_wei(hid_t hdf5_file,
       "Wrong position_embedding_size !");
   idx += _max_step * _hidden_size;
 
+  std::cout << "Finish loading position_embedding"
+              << std::endl;
+
   offset.push_back(idx);
   read_hdf5_dataset_data(
       hdf5_file, dataset_prefix + "/norm_scale", H5T_NATIVE_FLOAT,
       value.data() + idx, [=](int size) { return size != _hidden_size; },
       "Wrong norm_scale_size !");
   idx += _hidden_size;
+
+  std::cout << "Finish loading norm_scale"
+              << std::endl;
 
   offset.push_back(idx);
   read_hdf5_dataset_data(
@@ -594,21 +602,31 @@ void TransformerWeight<OpType_>::hdf5_parse_emb_wei(hid_t hdf5_file,
       "Wrong norm_bias_size !");
   idx += _hidden_size;
 
-  offset.push_back(idx);
-  read_hdf5_dataset_data(
-      hdf5_file, dataset_prefix + "/final_norm_scale", H5T_NATIVE_FLOAT,
-      value.data() + idx, [=](int size) { return size != _hidden_size; },
-      "Wrong final_norm_scale_size !");
-  idx += _hidden_size;
+  std::cout << "Finish loading norm_bias"
+              << std::endl;
 
-  offset.push_back(idx);
-  read_hdf5_dataset_data(
-      hdf5_file, dataset_prefix + "/final_norm_bias", H5T_NATIVE_FLOAT,
-      value.data() + idx, [=](int size) { return size != _hidden_size; },
-      "Wrong final_norm_bias_size !");
-  idx += _hidden_size;
-
+  std::cout << "source: " << source << std:endl;
   if (source == "src") {
+    offset.push_back(idx);
+    read_hdf5_dataset_data(
+          hdf5_file, dataset_prefix + "/final_norm_scale", H5T_NATIVE_FLOAT,
+          value.data() + idx, [=](int size) { return size != _hidden_size; },
+          "Wrong final_norm_scale_size !");
+    idx += _hidden_size;
+
+    std::cout << "Finish loading final norm scale"
+                  << std::endl;
+
+    offset.push_back(idx);
+    read_hdf5_dataset_data(
+          hdf5_file, dataset_prefix + "/final_norm_bias", H5T_NATIVE_FLOAT,
+          value.data() + idx, [=](int size) { return size != _hidden_size; },
+          "Wrong final_norm_bias_size !");
+    idx += _hidden_size;
+
+    std::cout << "Finish loading final norm bias "
+                  << std::endl;
+
     std::vector<_DataType> raw_value;
     raw_value.reserve(value.size());
     for (float e : value) raw_value.push_back(float2required(e));
@@ -644,6 +662,26 @@ void TransformerWeight<OpType_>::hdf5_parse_emb_wei(hid_t hdf5_file,
         "Wrong shared_bias_size !");
     idx += vocab_size;
 
+    offset.push_back(idx);
+    read_hdf5_dataset_data(
+          hdf5_file, dataset_prefix + "/final_norm_scale", H5T_NATIVE_FLOAT,
+          value.data() + idx, [=](int size) { return size != _hidden_size; },
+          "Wrong final_norm_scale_size !");
+    idx += _hidden_size;
+
+    std::cout << "Finish loading final norm scale"
+                  << std::endl;
+
+    offset.push_back(idx);
+    read_hdf5_dataset_data(
+          hdf5_file, dataset_prefix + "/final_norm_bias", H5T_NATIVE_FLOAT,
+          value.data() + idx, [=](int size) { return size != _hidden_size; },
+          "Wrong final_norm_bias_size !");
+    idx += _hidden_size;
+
+    std::cout << "Finish loading final norm bias "
+                  << std::endl;
+
     std::vector<_DataType> raw_value;
     raw_value.reserve(value.size());
     for (float e : value) raw_value.push_back(float2required(e));
@@ -653,6 +691,9 @@ void TransformerWeight<OpType_>::hdf5_parse_emb_wei(hid_t hdf5_file,
           thrust::raw_pointer_cast(_d_trg_emb_wei.data()) + e);
     }
   }  // trg
+
+  std::cout << "Finish loading encdec_kv_kernel, encdec_kv_bias, logit_bias"
+              << std::endl;
 
   if (_multilg_type) {
     // fill in language embedding
@@ -675,6 +716,8 @@ void TransformerWeight<OpType_>::hdf5_parse_emb_wei(hid_t hdf5_file,
     std::cout << "Finish loading multi lingual weights from host to device"
               << std::endl;
   }
+
+
 
   std::cout << "Finish loading " << source << "_emb_wei from host to device"
             << std::endl;
