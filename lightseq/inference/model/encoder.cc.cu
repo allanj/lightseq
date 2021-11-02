@@ -115,6 +115,17 @@ void Encoder<OpType_>::run_one_infer(int batch_size, int batch_seq_len) {
                             _tw._hidden_size, _stream, _p_d_src_emb_wei[4],
                             _p_d_lang_id, _tw._multilg_type);
 
+#ifdef DEBUG_RESULT
+  for (int i = 0; i < _batch_size; i++) {       // batch_id
+    for (int j = 0; j < _batch_seq_len; j++) {  // token_id
+      std::cout << "emb out: token-" << j << std::endl;
+      print_vec(_p_d_output + i * _batch_seq_len * _tw._hidden_size +
+                    j * _tw._hidden_size,
+                "emb out", 10);
+    }
+  }  // not normal
+#endif
+
   ker_norm_layer_launcher<_DataType>(
       _batch_token_num, _tw._hidden_size, _stream, _p_d_output,
       _p_d_src_emb_wei[4], _p_d_src_emb_wei[5], _max_thread_per_block);
@@ -125,7 +136,7 @@ void Encoder<OpType_>::run_one_infer(int batch_size, int batch_seq_len) {
       std::cout << "emb out: token-" << j << std::endl;
       print_vec(_p_d_output + i * _batch_seq_len * _tw._hidden_size +
                     j * _tw._hidden_size,
-                "emb out", 10);
+                "emb norm out", 10);
     }
   }  // not normal
 #endif

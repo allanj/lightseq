@@ -404,6 +404,10 @@ void Decoder<OpType_>::embedding() {
                             _p_d_cur_step_query, _batch_size, _tw._beam_size,
                             _tw._hidden_size, _tw._trg_vocab_size, _cur_step,
                             _tw._max_step, _tw._multilg_type, _stream);
+  //final layer norm
+  ker_norm_layer_launcher<_DataType>(
+      _step_token_num, _tw._hidden_size, _stream, _p_d_cur_step_query,
+      _p_d_trg_emb_wei[7], _p_d_trg_emb_wei[8], _max_thread_per_block);
 #ifdef DEBUG_RESULT
   for (int i = 0; i < _batch_size; i++) {       // batch_id
     for (int j = 0; j < _tw._beam_size; j++) {  // beam_id
@@ -444,10 +448,6 @@ void Decoder<OpType_>::decoder_stack() {
       _step_token_num, _tw._hidden_size, _stream, _p_d_cur_step_query,
       _p_d_trg_emb_wei[2], _p_d_trg_emb_wei[3], _max_thread_per_block);
 
-  //final layer norm
-  ker_norm_layer_launcher<_DataType>(
-      _step_token_num, _tw._hidden_size, _stream, _p_d_cur_step_query,
-      _p_d_trg_emb_wei[7], _p_d_trg_emb_wei[8], _max_thread_per_block);
   return;
 }
 
