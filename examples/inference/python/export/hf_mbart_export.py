@@ -390,7 +390,7 @@ def extract_transformer_weights(
 
     transformer.model_conf.extra_decode_length = extra_decode_length
     transformer.model_conf.src_padding_id = 1
-    transformer.model_conf.trg_start_id = 2
+    transformer.model_conf.trg_start_id = 0
     transformer.model_conf.trg_end_id = 2
 
     transformer.model_conf.sampling_method = generation_method
@@ -398,7 +398,7 @@ def extract_transformer_weights(
     transformer.model_conf.topp = topp
     transformer.model_conf.diverse_lambda = 0
     transformer.model_conf.is_post_ln = False
-    transformer.model_conf.no_scale_embedding = False
+    transformer.model_conf.no_scale_embedding = True
     transformer.model_conf.use_gelu = True
 
     if save_proto:

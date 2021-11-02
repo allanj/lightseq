@@ -605,7 +605,7 @@ void TransformerWeight<OpType_>::hdf5_parse_emb_wei(hid_t hdf5_file,
   std::cout << "Finish loading norm_bias"
               << std::endl;
 
-  std::cout << "source: " << source << std:endl;
+  std::cout << "source: " << source << std::endl;
   if (source == "src") {
     offset.push_back(idx);
     read_hdf5_dataset_data(

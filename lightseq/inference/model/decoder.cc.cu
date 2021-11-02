@@ -404,6 +404,16 @@ void Decoder<OpType_>::embedding() {
                             _p_d_cur_step_query, _batch_size, _tw._beam_size,
                             _tw._hidden_size, _tw._trg_vocab_size, _cur_step,
                             _tw._max_step, _tw._multilg_type, _stream);
+#ifdef DEBUG_RESULT
+  for (int i = 0; i < _batch_size; i++) {       // batch_id
+    for (int j = 0; j < _tw._beam_size; j++) {  // beam_id
+      std::cout << "decoder emb: batch-" << i << ", beam-" << j << std::endl;
+      print_vec(_p_d_cur_step_query + i * _tw._beam_size * _tw._hidden_size +
+                    j * _tw._hidden_size,
+                "emb", 10);
+    }
+  }
+#endif
   //final layer norm
   ker_norm_layer_launcher<_DataType>(
       _step_token_num, _tw._hidden_size, _stream, _p_d_cur_step_query,
@@ -411,7 +421,7 @@ void Decoder<OpType_>::embedding() {
 #ifdef DEBUG_RESULT
   for (int i = 0; i < _batch_size; i++) {       // batch_id
     for (int j = 0; j < _tw._beam_size; j++) {  // beam_id
-      std::cout << "decoder emb: batch-" << i << ", beam-" << j << std::endl;
+      std::cout << "decoder emb after norm: batch-" << i << ", beam-" << j << std::endl;
       print_vec(_p_d_cur_step_query + i * _tw._beam_size * _tw._hidden_size +
                     j * _tw._hidden_size,
                 "emb", 10);

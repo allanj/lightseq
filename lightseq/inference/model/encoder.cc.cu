@@ -109,6 +109,10 @@ void Encoder<OpType_>::run_one_infer(int batch_size, int batch_seq_len) {
 #endif
 
   /* ---step2. encoder feedforward--- */
+#ifdef DEBUG_RESULT
+  std::cout << "embedding weight"  << std::endl;
+  print_vec(_p_d_src_emb_wei[0], "src emb wei out", 10);
+#endif
   launch_enc_emb<_DataType>(_p_d_src_emb_wei[0], _p_d_src_emb_wei[1],
                             _p_d_token_id, _p_d_output, _p_d_padding_mask,
                             _tw._padding_id, batch_size, batch_seq_len,

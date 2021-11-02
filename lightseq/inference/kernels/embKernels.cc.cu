@@ -105,10 +105,16 @@ __global__ void ker_enc_emb(const T *token_emb, const T *pos_emb,
     }
     value = ((float4 *)token_emb)[token * hidden_dim + dim_idx];
     float4 pemb = ((float4 *)pos_emb)[seq_idx * hidden_dim + dim_idx];
+    value.x *= 32.f;
+    value.y *= 32.f;
+    value.z *= 32.f;
+    value.w *= 32.f;
+
     value.x += pemb.x;
     value.y += pemb.y;
     value.z += pemb.z;
     value.w += pemb.w;
+
   }
   ((float4 *)output)[idx] = value;
 }
@@ -149,8 +155,14 @@ __global__ void ker_enc_emb<__half>(const __half *token_emb,
     for (int i = 0; i < 4; i++) {
       float2 value_f2 = __half22float2(value_h2[i]);
       float2 pemb_f2 = __half22float2(pemb_h2[i]);
+
+      value_f2.x *= 32.f;
+      value_f2.y *= 32.f;
+
       value_f2.x += pemb_f2.x;
       value_f2.y += pemb_f2.y;
+
+
       value_h2[i] = __float22half2_rn(value_f2);
     }
   }
@@ -503,7 +515,7 @@ __global__ void ker_dec_emb(const T *token_emb, const T *pos_emb, int *tokens,
     emb = token_emb[flat_2dim(dim_idx, token, vocab_size)];
   }
   float value =
-      float(emb) + float(pos_emb[flat_2dim(step, dim_idx, hidden_dim)]);
+      float(emb)  * 32.f + float(pos_emb[flat_2dim(step, dim_idx, hidden_dim)]);
   if (multilg_type == 1) {
     // token level multilg, add lang_emb
     value +=
