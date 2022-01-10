@@ -399,6 +399,14 @@ template <OperationType OpType_>
 void Decoder<OpType_>::embedding() {
   // _p_d_trg_emb_wei: {token_emb, position_emb, norm_scale, norm_bias,
   // enc_out_kernel_kv, enc_out_bias_kv, logit_bias}
+#ifdef DEBUG_RESULT
+  std::cout << "decoder embedding weight"  << std::endl;
+  print_vec(_p_d_trg_emb_wei[0], "trg emb wei out", 10);
+  std::cout << "decoder embedding weight + 1"  << std::endl;
+  print_vec(_p_d_trg_emb_wei[1], "trg emb wei one out", 10);
+  std::cout << "decoder cur_step qyert + 1"  << std::endl;
+  print_vec(_p_d_cur_step_query, "cur step out", 10);
+#endif
   launch_dec_emb<_DataType>(_p_d_trg_emb_wei[0], _p_d_trg_emb_wei[1],
                             _p_d_alive_seq, _p_d_trg_emb_wei[7], _p_d_lang_id,
                             _p_d_cur_step_query, _batch_size, _tw._beam_size,
